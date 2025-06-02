@@ -1,75 +1,114 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { View, Text, TextInput, TouchableOpacity, Platform } from 'react-native'
+import React, { useState } from 'react'
+import tw from 'twrnc';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import DropDownPicker from 'react-native-dropdown-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+  const [nama, setNama] = useState('');
+  const [open, setOpen] = useState(false);
+  const [mood, setMood] = useState(null);
+  const [moodList, setMoodList] = useState([
+    { label: 'Senang', value: 'senang' },
+    { label: 'Sedih', value: 'sedih' },
+    { label: 'Stress', value: 'stress' },
+  ]);
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [dateString, setDateString] = useState('');
+
+  const formatDate = (dateObj: Date) => {
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const onChange = (event: any, selectedDate?: Date) => {
+    setShowPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setDate(selectedDate);
+      setDateString(formatDate(selectedDate));
+    }
+  };
+
+
+
+  return (
+    <View>
+      <SafeAreaView>
+        <View style={tw`mx-5`}>
+          <Text style={tw`text-white text-3xl font-bold`}>index</Text>
+          <View style={tw`mt-5 gap-3`}>
+            {/* input mood */}
+            <TextInput
+              value={nama}
+              style={tw`border border-gray-300 rounded-lg h-13 p-2 text-black`}
+              placeholder="Apa mood kamu hari ini?"
+              placeholderTextColor="gray"
+            />
+            {/* dropdown mood */}
+            <DropDownPicker
+              open={open}
+              value={mood}
+              items={moodList}
+              setOpen={setOpen}
+              setValue={setMood}
+              setItems={setMoodList}
+              placeholder="Pilih mood"
+              style={tw`border border-gray-500 bg-black rounded-lg`}
+              dropDownContainerStyle={tw`border border-gray-500 bg-black`}
+              textStyle={tw`text-white`}
+              placeholderStyle={tw`text-white`}
+              selectedItemLabelStyle={tw`text-white`}
+            />
+            {/* input tanggal manual */}
+            <View style={tw`flex flex-row items-center gap-2`}>
+              <TextInput
+                style={tw`border border-gray-300 rounded-lg h-13 p-2 w-70 text-white`}
+                placeholder="DD/MM/YYYY"
+                placeholderTextColor="gray"
+                value={dateString}
+                onChangeText={setDateString}
+                editable={false} // Disable manual input
+              />
+              {/* button untuk datepicker */}
+              <TouchableOpacity
+                style={tw`border border-blue-500 rounded-lg h-13 items-center w-30 justify-center bg-blue-500`}
+                onPress={() => setShowPicker(true)}
+              >
+                <Text style={tw`text-white text-center text-wrap`}>
+                  Pilih Tanggal
+                </Text>
+              </TouchableOpacity>
+              {/* datepicker */}
+              {showPicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={onChange}
+                />
+              )}
+            </View>
+            <TouchableOpacity
+              style={tw`bg-green-600 rounded-lg h-13 items-center justify-center mt-4`}
+              onPress={() => {
+                // TODO: Implement submit logic here (e.g., send data to API/database)
+                console.log({
+                  mood,
+                  date: dateString,
+                });
+              }}
+            >
+              <Text style={tw`text-white text-lg font-bold`}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    </View>
+  )
+}
