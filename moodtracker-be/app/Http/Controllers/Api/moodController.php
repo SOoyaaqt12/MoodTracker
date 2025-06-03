@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mood;
-use Dotenv\Util\Str;
 use Illuminate\Http\Request;
 
 class moodController extends Controller
@@ -23,13 +22,12 @@ class moodController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string',
-            'mood' => 'required|string',
-            'date' => 'nullable|date',
+            'description' => 'required|string',
+            'emotion' => 'required|in:senang,sedih,stress',
+            'date' => 'required|date',
         ]);
 
-        $mood = Mood::create($request->all());
-
+        return Mood::create( $request->all() );
         return response()->json([
             'message' => 'Mood created successfully',
             'data' => $mood,
@@ -52,12 +50,12 @@ class moodController extends Controller
         $mood = Mood::findOrFail($id);
 
         $request->validate([
-            'nama' => 'sometimes|required|string',
-            'mood' => 'sometimes|required|string',
-            'date' => 'sometimes|nullable|date',
+            'description'=> 'required|string',
+            'emotion'=> 'required|string',
+            'date'=> 'required|date',
         ]);
-        
-        $mood->update($request->all());
+
+        $mood->update( $request->all() );
 
         return response()->json($mood);
     }
@@ -71,7 +69,7 @@ class moodController extends Controller
         $mood->delete();
 
         return response()->json([
-            'message' => 'Mood deleted successfully',
-        ], 200);
+            'message'=>'Mood di hapus'
+        ]);
     }
 }

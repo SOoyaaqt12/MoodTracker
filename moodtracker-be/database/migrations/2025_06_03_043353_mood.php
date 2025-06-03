@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('moods', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');
-            $table->string('mood');
-            $table->date('date')->nullable();
+            $table->string('description');
+            $table->enum('emotion', ['senang', 'sedih', 'stress']);
+            $table->date('date');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('moods');
+        //
     }
 };

@@ -9,8 +9,8 @@ class Mood extends Model
     protected $table = 'moods';
 
     protected $fillable = [
-        'nama',
-        'mood',
+        'description',
+        'emotion',
         'date',
     ];
 }
